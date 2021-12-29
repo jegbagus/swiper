@@ -1,5 +1,3 @@
-import { getDocument } from 'ssr-window';
-
 import onTouchStart from './onTouchStart.js';
 import onTouchMove from './onTouchMove.js';
 import onTouchEnd from './onTouchEnd.js';
@@ -11,8 +9,8 @@ let dummyEventAttached = false;
 function dummyEventListener() {}
 
 const events = (swiper, method) => {
-  const document = getDocument();
   const { params, touchEvents, el, wrapperEl, device, support } = swiper;
+  const document = el.ownerDocument;
   const capture = !!params.nested;
   const domMethod = method === 'on' ? 'addEventListener' : 'removeEventListener';
   const swiperMethod = method;
@@ -62,8 +60,8 @@ const events = (swiper, method) => {
 
 function attachEvents() {
   const swiper = this;
-  const document = getDocument();
-  const { params, support } = swiper;
+  const { el, params, support } = swiper;
+  const document = el.ownerDocument;
 
   swiper.onTouchStart = onTouchStart.bind(swiper);
   swiper.onTouchMove = onTouchMove.bind(swiper);
