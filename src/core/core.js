@@ -1,5 +1,4 @@
 /* eslint no-param-reassign: "off" */
-import { getDocument } from 'ssr-window';
 import $ from '../shared/dom.js';
 import { extend, now, deleteProps } from '../shared/utils.js';
 import { getSupport } from '../shared/get-support.js';
@@ -458,7 +457,7 @@ class Swiper {
     // Find Wrapper
     let $wrapperEl = getWrapper();
     if ($wrapperEl.length === 0 && swiper.params.createElements) {
-      const document = getDocument();
+      const document = $el.ownerDocument;
       const wrapper = document.createElement('div');
       $wrapperEl = $(wrapper);
       wrapper.className = swiper.params.wrapperClass;
