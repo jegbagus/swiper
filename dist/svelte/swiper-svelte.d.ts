@@ -45,6 +45,9 @@ declare class Swiper extends SvelteComponentTyped<
    * Event will be fired when swiper updates the hash
    */
   hashSet: CustomEvent<[swiper: SwiperClass]>;/**
+   * Event will be fired on key press
+   */
+  keyPress: CustomEvent<[swiper: SwiperClass, keyCode: string]>;/**
    * Event will be fired in the beginning of lazy loading of image
    */
   lazyImageLoad: CustomEvent<[swiper: SwiperClass, slideEl: HTMLElement, imageEl: HTMLElement]>;
@@ -52,25 +55,13 @@ declare class Swiper extends SvelteComponentTyped<
    * Event will be fired when lazy loading image will be loaded
    */
   lazyImageReady: CustomEvent<[swiper: SwiperClass, slideEl: HTMLElement, imageEl: HTMLElement]>;/**
-   * Event will be fired on key press
+   * Event will be fired on navigation hide
    */
-  keyPress: CustomEvent<[swiper: SwiperClass, keyCode: string]>;/**
-   * Event will be fired on mousewheel scroll
-   */
-  scroll: CustomEvent<[swiper: SwiperClass, event: WheelEvent]>;/**
-   * Event will be fired on draggable scrollbar drag start
-   */
-  scrollbarDragStart: CustomEvent<[swiper: SwiperClass, event: MouseEvent | TouchEvent | PointerEvent]>;
-
+  navigationHide: CustomEvent<[swiper: SwiperClass]>;
   /**
-   * Event will be fired on draggable scrollbar drag move
+   * Event will be fired on navigation show
    */
-  scrollbarDragMove: CustomEvent<[swiper: SwiperClass, event: MouseEvent | TouchEvent | PointerEvent]>;
-
-  /**
-   * Event will be fired on draggable scrollbar drag end
-   */
-  scrollbarDragEnd: CustomEvent<[swiper: SwiperClass, event: MouseEvent | TouchEvent | PointerEvent]>;/**
+  navigationShow: CustomEvent<[swiper: SwiperClass]>;/**
    * Event will be fired after pagination rendered
    */
   paginationRender: CustomEvent<[swiper: SwiperClass, paginationEl: HTMLElement]>;
@@ -89,13 +80,22 @@ declare class Swiper extends SvelteComponentTyped<
    * Event will be fired on pagination show
    */
   paginationShow: CustomEvent<[swiper: SwiperClass]>;/**
-   * Event will be fired on navigation hide
+   * Event will be fired on draggable scrollbar drag start
    */
-  navigationHide: CustomEvent<[swiper: SwiperClass]>;
+  scrollbarDragStart: CustomEvent<[swiper: SwiperClass, event: MouseEvent | TouchEvent | PointerEvent]>;
+
   /**
-   * Event will be fired on navigation show
+   * Event will be fired on draggable scrollbar drag move
    */
-  navigationShow: CustomEvent<[swiper: SwiperClass]>;/**
+  scrollbarDragMove: CustomEvent<[swiper: SwiperClass, event: MouseEvent | TouchEvent | PointerEvent]>;
+
+  /**
+   * Event will be fired on draggable scrollbar drag end
+   */
+  scrollbarDragEnd: CustomEvent<[swiper: SwiperClass, event: MouseEvent | TouchEvent | PointerEvent]>;/**
+   * Event will be fired on mousewheel scroll
+   */
+  scroll: CustomEvent<[swiper: SwiperClass, event: WheelEvent]>;/**
    * Event will be fired on zoom change
    */
   zoomChange: CustomEvent<[swiper: SwiperClass, scale: number, imageEl: HTMLElement, slideEl: HTMLElement]>;

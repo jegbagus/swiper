@@ -22,9 +22,11 @@ export default function Navigation({ swiper, extendParams, on, emit }) {
   };
 
   function getEl(el) {
+    const { el: swiperElement } = swiper;
+    const ownerDocument = swiperElement.ownerDocument;
     let $el;
     if (el) {
-      $el = $(el);
+      $el = $(ownerDocument).find(el);
       if (
         swiper.params.uniqueNavElements &&
         typeof el === 'string' &&

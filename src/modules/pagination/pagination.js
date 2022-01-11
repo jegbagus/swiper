@@ -272,6 +272,9 @@ export default function Pagination({ swiper, extendParams, on, emit }) {
     }
   }
   function init() {
+    const { el: swiperElement } = swiper;
+    const ownerDocument = swiperElement.ownerDocument;
+
     swiper.params.pagination = createElementIfNotDefined(
       swiper,
       swiper.originalParams.pagination,
@@ -281,7 +284,7 @@ export default function Pagination({ swiper, extendParams, on, emit }) {
     const params = swiper.params.pagination;
     if (!params.el) return;
 
-    let $el = $(params.el);
+    let $el = $(ownerDocument).find(params.el); // this is the problem.
     if ($el.length === 0) return;
 
     if (swiper.params.uniqueNavElements && typeof params.el === 'string' && $el.length > 1) {

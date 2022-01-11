@@ -5610,10 +5610,14 @@ function Navigation({
   };
 
   function getEl(el) {
+    const {
+      el: swiperElement
+    } = swiper;
+    const ownerDocument = swiperElement.ownerDocument;
     let $el;
 
     if (el) {
-      $el = $(el);
+      $el = $(ownerDocument).find(el);
 
       if (swiper.params.uniqueNavElements && typeof el === 'string' && $el.length > 1 && swiper.$el.find(el).length === 1) {
         $el = swiper.$el.find(el);
@@ -6040,12 +6044,17 @@ function Pagination({
   }
 
   function init() {
+    const {
+      el: swiperElement
+    } = swiper;
+    const ownerDocument = swiperElement.ownerDocument;
     swiper.params.pagination = createElementIfNotDefined(swiper, swiper.originalParams.pagination, swiper.params.pagination, {
       el: 'swiper-pagination'
     });
     const params = swiper.params.pagination;
     if (!params.el) return;
-    let $el = $(params.el);
+    let $el = $(ownerDocument).find(params.el); // this is the problem.
+
     if ($el.length === 0) return;
 
     if (swiper.params.uniqueNavElements && typeof params.el === 'string' && $el.length > 1) {

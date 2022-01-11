@@ -24,10 +24,14 @@ export default function Navigation({
   };
 
   function getEl(el) {
+    const {
+      el: swiperElement
+    } = swiper;
+    const ownerDocument = swiperElement.ownerDocument;
     let $el;
 
     if (el) {
-      $el = $(el);
+      $el = $(ownerDocument).find(el);
 
       if (swiper.params.uniqueNavElements && typeof el === 'string' && $el.length > 1 && swiper.$el.find(el).length === 1) {
         $el = swiper.$el.find(el);
