@@ -1,10 +1,30 @@
-import Swiper from '../swiper-class';
+import type Swiper from '../swiper-class.d.ts';
 
 export interface AutoplayMethods {
   /**
    * Whether autoplay enabled and running
    */
   running: boolean;
+
+  /**
+   * Whether autoplay is paused
+   */
+  paused: boolean;
+
+  /**
+   * If autoplay is paused, it contains time left (in ms) before transition to next slide
+   */
+  timeLeft: number;
+
+  /**
+   * Pause autoplay
+   */
+  pause(): void;
+
+  /**
+   * Resume autoplay
+   */
+  resume(): void;
 
   /**
    * Start autoplay
@@ -26,6 +46,18 @@ export interface AutoplayEvents {
    * Event will be fired when autoplay stopped
    */
   autoplayStop: (swiper: Swiper) => void;
+  /**
+   * Event will be fired on autoplay pause
+   */
+  autoplayPause: (swiper: Swiper) => void;
+  /**
+   * Event will be fired on autoplay resume
+   */
+  autoplayResume: (swiper: Swiper) => void;
+  /**
+   * Event triggers continuously while autoplay is enabled. It contains time left (in ms) before transition to next slide and percentage of that time related to autoplay delay
+   */
+  autoplayTimeLeft: (swiper: Swiper, timeLeft: number, percentage: number) => void;
   /**
    * Event will be fired when slide changed with autoplay
    */
@@ -93,7 +125,7 @@ export interface AutoplayOptions {
   waitForTransition?: boolean;
 
   /**
-   * When enabled autoplay will be paused on mouse enter over Swiper container. If `disableOnInteraction` is also enabled, it will stop autoplay instead of pause
+   * When enabled autoplay will be paused on pointer (mouse) enter over Swiper container.
    *
    * @default false
    */

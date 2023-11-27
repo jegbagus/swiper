@@ -1,6 +1,5 @@
-import { Dom7Array } from 'dom7';
-import { CSSSelector } from '../shared';
-import Swiper from '../swiper-class';
+import type { CSSSelector } from '../shared.d.ts';
+import type Swiper from '../swiper-class.d.ts';
 
 export interface PaginationMethods {
   /**
@@ -9,11 +8,11 @@ export interface PaginationMethods {
   el: HTMLElement;
 
   /**
-   * Dom7 array-like collection of pagination bullets
+   * Array of pagination bullets
    * HTML elements. To get specific slide HTMLElement
    * use `swiper.pagination.bullets[1]`.
    */
-  bullets: Dom7Array[];
+  bullets: HTMLElement[];
 
   /**
    * Render pagination layout
@@ -59,6 +58,10 @@ export interface PaginationEvents {
 }
 
 export interface PaginationOptions {
+  /**
+   * Boolean property to use with breakpoints to enable/disable pagination on certain breakpoints
+   */
+  enabled?: boolean;
   /**
    * String with CSS selector or HTML element of the container with pagination
    *
@@ -120,13 +123,13 @@ export interface PaginationOptions {
    * format fraction pagination current number. Function receives current number,
    * and you need to return formatted value
    */
-  formatFractionCurrent?: (number: number) => number;
+  formatFractionCurrent?: (number: number) => number | string;
 
   /**
    * format fraction pagination total number. Function receives total number, and you
    * need to return formatted value
    */
-  formatFractionTotal?: (number: number) => number;
+  formatFractionTotal?: (number: number) => number | string;
 
   /**
    * This parameter allows totally customize pagination bullets, you need to pass here a function that accepts `index` number of
@@ -144,7 +147,7 @@ export interface PaginationOptions {
    * });
    * ```
    */
-  renderBullet?: (index: number, className: string) => void;
+  renderBullet?: (index: number, className: string) => string;
 
   /**
    * This parameter allows to customize "fraction" pagination html. Only for `'fraction'` pagination type
@@ -163,7 +166,7 @@ export interface PaginationOptions {
    * });
    * ```
    */
-  renderFraction?: (currentClass: string, totalClass: string) => void;
+  renderFraction?: (currentClass: string, totalClass: string) => string;
 
   /**
    * This parameter allows to customize "progress" pagination. Only for `'progress'` pagination type
@@ -180,7 +183,7 @@ export interface PaginationOptions {
    * });
    * ```
    */
-  renderProgressbar?: (progressbarFillClass: string) => void;
+  renderProgressbar?: (progressbarFillClass: string) => string;
 
   /**
    * This parameter is required for `'custom'` pagination type where you have to specify
@@ -198,7 +201,7 @@ export interface PaginationOptions {
    * });
    * ```
    */
-  renderCustom?: (swiper: Swiper, current: number, total: number) => void;
+  renderCustom?: (swiper: Swiper, current: number, total: number) => string;
 
   /**
    * CSS class name of single pagination bullet
@@ -282,4 +285,11 @@ export interface PaginationOptions {
    * @default 'swiper-pagination-vertical'
    */
   verticalClass?: string;
+
+  /**
+   * CSS class name added on swiper container and pagination element when pagination is disabled by breakpoint
+   *
+   * @default 'swiper-pagination-disabled'
+   */
+  paginationDisabledClass?: string;
 }

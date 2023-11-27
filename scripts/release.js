@@ -1,12 +1,23 @@
-/* eslint-disable no-await-in-loop */
-const exec = require('exec-sh');
-const inquirer = require('inquirer');
-const fs = require('fs');
-const path = require('path');
-const pkg = require('../package.json');
-const childPkg = require('../src/copy/package.json');
+import exec from 'exec-sh';
+import inquirer from 'inquirer';
+import fs from 'fs';
+import path from 'path';
+import { rimraf } from 'rimraf';
+import * as url from 'url';
+
+const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url)));
+const childPkg = JSON.parse(fs.readFileSync(new URL('../src/copy/package.json', import.meta.url)));
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 async function release() {
+  const date = new Date();
+  const formatter = new Intl.DateTimeFormat('en', {
+    day: 'numeric',
+    year: 'numeric',
+    month: 'long',
+  });
+  const releaseDate = formatter.format(date);
+
   const options = await inquirer.prompt([
     {
       type: 'input',
@@ -66,53 +77,25 @@ async function release() {
   // Set version
   pkg.version = options.version;
   childPkg.version = options.version;
-
+  childPkg.releaseDate = releaseDate;
   // Copy dependencies
   childPkg.dependencies = pkg.dependencies;
-
   fs.writeFileSync(path.resolve(__dirname, '../package.json'), `${JSON.stringify(pkg, null, 2)}\n`);
   fs.writeFileSync(
     path.resolve(__dirname, '../src/copy/package.json'),
     `${JSON.stringify(childPkg, null, 2)}\n`,
   );
 
-  const cleanPackage = [
-    "find *.js -type f -not -name 'postinstall.js' -print0 | xargs -0  -I {} rm -v {}",
-    'rm -rf angular',
-    'rm -rf components',
-    'rm -rf core',
-    'rm -rf modules',
-    'rm -rf react',
-    'rm -rf shared',
-    'rm -rf svelte',
-    'rm -rf types',
-    'rm -rf vue',
-    'rm -rf **/*.ts',
-    'rm -rf *.ts',
-    'rm -rf **/*.css',
-    'rm -rf *.css',
-    'rm -rf **/*.map',
-    'rm -rf *.map',
-    'rm -rf **/*.less',
-    'rm -rf *.less',
-    'rm -rf **/*.scss',
-    'rm -rf *.scss',
-    'rm -rf **/*.svelte',
-    'rm -rf *.svelte',
-  ];
-  await exec.promise(`cd ./dist && ${cleanPackage.join(' && ')}`);
-
   await exec.promise('git pull');
   await exec.promise('npm i');
-  await exec.promise(`cd ./dist && ${cleanPackage.join(' && ')}`);
+  rimraf.sync(path.resolve(__dirname, 'dir'));
+  fs.mkdirSync(path.resolve(__dirname, 'dir'));
   await exec.promise(`npm run build:prod`);
   await exec.promise('git add .');
-  await exec.promise(`git commit -m "${pkg.version} release"`);
+  await exec.promise(`git commit -m ${pkg.version} --no-verify`);
   await exec.promise('git push');
   await exec.promise(`git tag v${pkg.version}`);
   await exec.promise('git push origin --tags');
-
-  // eslint-disable-next-line
   if (options.beta) {
     await exec.promise('cd ./dist && npm publish --tag beta');
   } else if (options.alpha || options.next) {
@@ -121,5 +104,4 @@ async function release() {
     await exec.promise('cd ./dist && npm publish');
   }
 }
-
 release();

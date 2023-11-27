@@ -1,23 +1,28 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+import * as url from 'url';
 
-const getSponsor = (item) => {
-  const { createdAt } = item.sys;
-  const { title, link, plan, ref, image, imageHorizontal } = item.fields;
-
-  const sponsor = {
-    createdAt,
-    title,
-    link,
-    plan,
-    ref,
-    image: image ? image.fields.file.fileName : '',
-    image_h: imageHorizontal ? image.fields.file.fileName : '',
-  };
-
-  return sponsor;
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+const getSponsors = () => {
+  return new Promise((resolve, reject) => {
+    https
+      .get('https://swiperjs.com/sponsors-list.json', (resp) => {
+        let data = '';
+        // A chunk of data has been received.
+        resp.on('data', (chunk) => {
+          data += chunk;
+        });
+        // The whole response has been received. Print out the result.
+        resp.on('end', () => {
+          resolve(JSON.parse(data));
+        });
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
+  });
 };
-
 const buildTables = (sponsors) => {
   const tableSponsors = [
     ...(sponsors['Platinum Sponsor'] || []),
@@ -25,13 +30,11 @@ const buildTables = (sponsors) => {
     ...(sponsors['Silver Sponsor'] || []),
     ...(sponsors['Sponsor'] || []), // eslint-disable-line
   ];
-
   let tableContent = '';
   if (tableSponsors.length > 0) {
     const rows = [];
-    const perRow = 8;
+    const perRow = 12;
     let rowIndex = 0;
-
     tableSponsors.forEach((item, index) => {
       const colIndex = index - perRow * rowIndex;
       if (colIndex > perRow - 1) rowIndex += 1;
@@ -63,28 +66,23 @@ const buildTables = (sponsors) => {
       )
       .join('\n')}\n</table>\n`;
   }
-
   const backersContent = fs
     .readFileSync(path.resolve(__dirname, '../BACKERS.md'), 'utf-8')
     .split('<!-- SPONSORS_TABLE_WRAP -->');
   backersContent[1] = tableContent;
-
   const readmeContent = fs
     .readFileSync(path.resolve(__dirname, '../README.md'), 'utf-8')
     .split('<!-- SPONSORS_TABLE_WRAP -->');
   readmeContent[1] = tableContent;
-
   fs.writeFileSync(
     path.resolve(__dirname, '../BACKERS.md'),
     backersContent.join('<!-- SPONSORS_TABLE_WRAP -->'),
   );
-
   fs.writeFileSync(
     path.resolve(__dirname, '../README.md'),
     readmeContent.join('<!-- SPONSORS_TABLE_WRAP -->'),
   );
 };
-
 const buildSponsorsList = async (sponsors) => {
   const silverSponsorsContent = sponsors['Silver Sponsor'].map((item) =>
     `
@@ -96,65 +94,29 @@ const buildSponsorsList = async (sponsors) => {
   - [${item.title}](${item.link})
   `.trim(),
   );
-
   let backersContent = fs.readFileSync(path.resolve(__dirname, '../BACKERS.md'), 'utf-8');
-
   backersContent = backersContent.split('<!-- SILVER_SPONSOR -->');
   backersContent[1] = `\n${silverSponsorsContent.join('\n')}\n`;
   backersContent = backersContent.join('<!-- SILVER_SPONSOR -->');
-
   backersContent = backersContent.split('<!-- SPONSOR -->');
   backersContent[1] = `\n${sponsorsContent.join('\n')}\n`;
   backersContent = backersContent.join('<!-- SPONSOR -->');
-
   fs.writeFileSync(path.resolve(__dirname, '../BACKERS.md'), backersContent);
 };
-
 const buildSponsors = async () => {
-  let spaceId;
-  let accessToken;
-
-  try {
-    fs.readFileSync(path.resolve(__dirname, '../.env.local'), 'utf-8')
-      .trim()
-      .split('\n')
-      .forEach((line) => {
-        const [key, value] = line.split('=');
-        if (key === 'CONTENTFUL_SPACE_ID') spaceId = value;
-        if (key === 'CONTENTFUL_ACCESS_TOKEN') accessToken = value;
-      });
-  } catch (err) {
-    spaceId = process.env.CONTENTFUL_SPACE_ID;
-    accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
-  }
-
-  if (!spaceId || !accessToken) {
-    return;
-  }
-
-  // eslint-disable-next-line
-  const client = require('contentful').createClient({
-    space: spaceId,
-    accessToken,
-  });
-
-  const entries = await client.getEntries();
-
+  const entries = await getSponsors();
   const sponsors = {};
-  if (entries.items) {
-    const items = entries.items.map((item) => getSponsor(item));
+  if (entries) {
+    const items = [...entries];
     items.sort((a, b) => {
       return new Date(a.createdAt) > new Date(b.createdAt) ? -1 : 1;
     });
-
     items.forEach((item) => {
       if (!sponsors[item.plan]) sponsors[item.plan] = [];
       sponsors[item.plan].push(item);
     });
   }
-
   buildTables(sponsors);
   buildSponsorsList(sponsors);
 };
-
 buildSponsors();

@@ -1,13 +1,15 @@
 :root {
   --swiper-navigation-size: 44px;
   /*
+  --swiper-navigation-top-offset: 50%;
+  --swiper-navigation-sides-offset: 10px;
   --swiper-navigation-color: var(--swiper-theme-color);
   */
 }
 .swiper-button-prev,
 .swiper-button-next {
   position: absolute;
-  top: 50%;
+  top: var(--swiper-navigation-top-offset, 50%);
   width: calc(var(--swiper-navigation-size) / 44 * 27);
   height: var(--swiper-navigation-size);
   margin-top: calc(0px - (var(--swiper-navigation-size) / 2));
@@ -22,12 +24,45 @@
     cursor: auto;
     pointer-events: none;
   }
+  &.swiper-button-hidden {
+    opacity: 0;
+    cursor: auto;
+    pointer-events: none;
+  }
+  .swiper-navigation-disabled & {
+    display: none !important;
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform-origin: center;
+  }
+  .swiper-rtl & svg {
+    transform: rotate(180deg);
+  }
+}
+.swiper-button-prev,
+.swiper-rtl .swiper-button-next {
+  left: var(--swiper-navigation-sides-offset, 10px);
+  right: auto;
+}
+.swiper-button-next,
+.swiper-rtl .swiper-button-prev {
+  right: var(--swiper-navigation-sides-offset, 10px);
+  left: auto;
+}
+.swiper-button-lock {
+  display: none;
+}
+/* Navigation font start */
+.swiper-button-prev,
+.swiper-button-next {
   &:after {
     font-family: swiper-icons;
     font-size: var(--swiper-navigation-size);
     text-transform: none !important;
     letter-spacing: 0;
-    text-transform: none;
     font-variant: initial;
     line-height: 1;
   }
@@ -37,17 +72,13 @@
   &:after {
     content: 'prev';
   }
-  left: 10px;
-  right: auto;
 }
 .swiper-button-next,
 .swiper-rtl .swiper-button-prev {
   &:after {
     content: 'next';
   }
-  right: 10px;
+  right: var(--swiper-navigation-sides-offset, 10px);
   left: auto;
 }
-.swiper-button-lock {
-  display: none;
-}
+/* Navigation font end */
